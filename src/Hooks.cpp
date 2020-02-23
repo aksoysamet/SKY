@@ -47,6 +47,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <limits>
 
+#include "Hack.h"
+
 #ifdef _WIN32
 //#define VC_EXTRALEAN
 #include <psapi.h>
@@ -613,6 +615,10 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}	
 
 			Player::lastSyncPacket[playerid] = Global::SyncTypes::E_SPECTATING_SYNC;			
+		}
+
+		if (!Hack::AntiHackCheck(p, packetId, playerid)){
+			return nullptr;
 		}
 
 		return p;

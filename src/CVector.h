@@ -66,6 +66,24 @@ public:
 		return (float)sqrt ( (fX*fX) + (fY*fY) + (fZ*fZ) );
 	}
 
+	float Length2(void) const
+	{
+		double t = sqrt(fX*fX + fY * fY);
+		return static_cast < float > (t);
+	}
+
+	float fastLength(void) const
+	{
+		double t = fX*fX + fY * fY + fZ * fZ;
+		return static_cast < float > (t);
+	}
+
+	float fastLength2(void) const
+	{
+		double t = fX * fX + fY * fY;
+		return static_cast < float > (t);
+	}
+	
 	float DotProduct ( const CVector * param ) const
 	{
 		return fX*param->fX + fY*param->fY + fZ*param->fZ;

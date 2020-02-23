@@ -16,6 +16,10 @@
 #include "Utils.h"
 #include <fstream>
 
+#include "Hack.h"
+#include "HackScripting.h"
+#include <set>
+
 #ifdef LINUX
 #include <cstring>
 typedef unsigned char *PCHAR;
@@ -26,6 +30,9 @@ typedef unsigned char *PCHAR;
 void **ppPluginData;
 extern void *pAMXFunctions;
 logprintf_t logprintf;
+
+std::set<AMX*> amxList;
+int tickRate = 0;
 
 // Internal server pointers
 CNetGame *pNetGame = 0;
@@ -41,7 +48,7 @@ eSAMPVersion iVersion = eSAMPVersion::SAMP_VERSION_UNKNOWN;
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
 {
-	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
+	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES | SUPPORTS_PROCESS_TICK;
 }
 
 //----------------------------------------------------------
@@ -89,7 +96,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 		bFirst = true;
 		CSAMPFunctions::Initialize();
 	}
-
+	amxList.insert(amx);
+	HackScripting::InitScripting(amx);
 	return InitScripting(amx);
 }
 
@@ -99,5 +107,39 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx)
 {
+	amxList.erase(amx);
 	return AMX_ERR_NONE;
+}
+
+PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
+{
+	if (++tickRate >= 50)
+	{
+		int i;
+		for (i = 0; i < 1000; i++)
+		{
+			if (Hack::hacks[i] > 0)
+			{
+				try
+				{
+				for (std::set<AMX*>::iterator a = amxList.begin(); a != amxList.end(); ++a)
+				{
+					int amxIndex = 0;
+					if (!amx_FindPublic(*a, "OnPlayerHack", &amxIndex))
+					{
+						amx_Push(*a, static_cast<cell>(Hack::hacks[i]));
+						amx_Push(*a, static_cast<cell>(i));
+						amx_Exec(*a, NULL, amxIndex);
+					}
+				}
+				}
+				catch (...)
+				{
+					logprintf("Unknown Error in ProcessTick");
+				}
+				Hack::hacks[i] = 0;
+			}			
+		}
+		tickRate = 0;
+	}
 }
