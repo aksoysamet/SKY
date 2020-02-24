@@ -51,6 +51,7 @@ namespace Hack
     static bool AntiHackCheck(Packet *p, BYTE packetid, WORD playerid)
     {
         if (!PlayerActiveCheats[playerid])return true;
+        if (!pNetGame->pPlayerPool->bIsPlayerConnected[playerid])return true;
         bool rtn = true;
         bool fake = false;
         switch (packetid)
@@ -201,12 +202,12 @@ namespace Hack
                 }
                 CVehicleSyncData *d = (CVehicleSyncData*)(&p->data[1]);
                 WORD vehicleid = d->wVehicleId;
-                if ((GetTickCount() - Player::lastUpdateTick[playerid]) > 1500)
-                {
-                    DisableSyncVeh[vehicleid] = 5;
-                }
                 if (vehicleid > 0 && vehicleid <= 1999)
                 {
+                    if ((GetTickCount() - Player::lastUpdateTick[playerid]) > 1500)
+                    {
+                        DisableSyncVeh[vehicleid] = 5;
+                    }
                     if (pNetGame->pVehiclePool->pVehicle[vehicleid] != NULL)
                     {
                         CVehicle *veh = pNetGame->pVehiclePool->pVehicle[vehicleid];
@@ -350,7 +351,8 @@ namespace Hack
                             }
                         }
                     }
-                }
+                }else
+                return 0;
                 break;
             }
             case ID_PASSENGER_SYNC:

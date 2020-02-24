@@ -616,11 +616,17 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 
 			Player::lastSyncPacket[playerid] = Global::SyncTypes::E_SPECTATING_SYNC;			
 		}
-
-		if (!Hack::AntiHackCheck(p, packetId, playerid)){
-			return nullptr;
+		try {
+			if (!Hack::AntiHackCheck(p, packetId, playerid)){
+				return nullptr;
+			}
 		}
-
+		catch(...)
+		{
+			logprintf("[SKY] Something went wrong;");
+			logprintf("[SKY] PacketId:%d Playerid:%d", packetId, playerid);
+			logprintf("[SKY] Packet:%s", p->data);
+		}
 		return p;
 	});
 }
