@@ -24,7 +24,9 @@ yum install gcc gcc-c++ cmake28 make
 ```
 
 ```
+git clone https://github.com/MagNeteC/SKY.git
 cd SKY
+git submodule update --init --recursive
 mkdir build && cd build
 cmake ../ -DCMAKE_BUILD_TYPE=Release
 make
@@ -36,7 +38,9 @@ You'll need to install CMake and Visual Studio, once you have that
 then you can run the command below to build
 
 ```
+git clone https://github.com/MagNeteC/SKY.git
 cd SKY
+git submodule update --init --recursive
 mkdir build && cd build
 cmake ../ -A Win32
 cmake --build . --config Release
@@ -47,6 +51,7 @@ build a cache ready to be built
 
 ## Credits
 
+- MagNeteC (Anti Hack)
 - Slice (SKY Creator)
 - Kurta999 (Previous YSF Maintainer)
 - Y_Less (The original YSF Creator)
